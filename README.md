@@ -45,4 +45,47 @@ print(plan)
 ```
 
 # Please Prepare Solution or Definition For the method find_plan(initial_state, goal_state, actions)
-<h3>You Can use any of the searching Strategies for planning and executing a sequence of actions.<br> You can also look in to the Code given in the Repository.</h3>
+```
+from collections import deque
+
+def find_plan(initial_state, goal_state, actions):
+    # Convert dicts to frozensets for hashing
+    def state_to_tuple(state):
+        return frozenset(state.items())
+
+    # Check if goal is satisfied
+    def is_goal(state):
+        return all(state.get(k) == v for k, v in goal_state.items())
+
+    # Apply action to get new state
+    def apply_action(state, action):
+        new_state = state.copy()
+        new_state.update(action['effect'])
+        return new_state
+
+    # Check if action can be applied
+    def is_applicable(state, action):
+        return all(state.get(k) == v for k, v in action['precondition'].items())
+
+    visited = set()
+    queue = deque([(initial_state, [])])
+
+    while queue:
+        state, plan = queue.popleft()
+        state_key = state_to_tuple(state)
+
+        if state_key in visited:
+            continue
+        visited.add(state_key)
+
+        if is_goal(state):
+            return plan
+
+        for name, action in actions.items():
+            if is_applicable(state, action):
+                new_state = apply_action(state, action)
+                queue.append((new_state, plan + [name]))
+
+    return None  # No plan found
+```
+#RESULT OBTAINED
